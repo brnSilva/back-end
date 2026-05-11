@@ -1,13 +1,13 @@
-package test.bruno.project;
+package br.com.challenge.adapter.in.rest;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class HelloController {
+public class OrderController {
 
-    @GetMapping("/")
+    @GetMapping("/hello")
     public String hello() {
-        return "API running successfully!";
+        return "Hello, you have accessed a protected endpoint!";
     }
 }
