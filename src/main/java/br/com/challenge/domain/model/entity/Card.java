@@ -3,8 +3,10 @@ package br.com.challenge.domain.model.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import br.com.challenge.domain.model.vo.CardNumber;
+
 public record Card(
     UUID id,
-    String cardNumber,
+    CardNumber cardNumber,
     LocalDateTime createdAt
 ) {}

@@ -9,9 +9,17 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+import br.com.challenge.adapter.in.rest.security.CustomAuthenticationEntryPoint;
+
 @Configuration
 @EnableWebSecurity
 public class ResourceServerConfig {
+
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    public ResourceServerConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+    }
 
     @Bean
     @Order(2)
@@ -39,6 +47,11 @@ public class ResourceServerConfig {
 
             .oauth2ResourceServer(resource ->
                     resource.jwt(Customizer.withDefaults())
+            )
+            .exceptionHandling(exception ->
+                exception.authenticationEntryPoint(
+                        customAuthenticationEntryPoint
+                )
             );
 
         http.headers(headers ->

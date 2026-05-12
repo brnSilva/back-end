@@ -8,6 +8,7 @@ import br.com.challenge.application.dto.CreateCardCommand;
 import br.com.challenge.application.port.in.CreateCardUseCase;
 import br.com.challenge.application.port.out.persistence.SaveCardPort;
 import br.com.challenge.domain.model.entity.Card;
+import br.com.challenge.domain.model.vo.CardNumber;
 
 @Service
 public class CreateCardService implements CreateCardUseCase {
@@ -22,7 +23,7 @@ public class CreateCardService implements CreateCardUseCase {
     public Card execute(CreateCardCommand command) {
         Card card = new Card(
             null,
-            command.cardNumber(),
+            new CardNumber(command.cardNumber()),
             LocalDateTime.now()
         );
 
