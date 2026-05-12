@@ -2,6 +2,7 @@ package br.com.challenge.application.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import br.com.challenge.application.dto.CreateCardCommand;
@@ -9,6 +10,7 @@ import br.com.challenge.application.port.in.CreateCardUseCase;
 import br.com.challenge.application.port.out.persistence.SaveCardPort;
 import br.com.challenge.application.port.out.security.EncryptDataPort;
 import br.com.challenge.application.port.out.security.HashDataPort;
+import br.com.challenge.domain.exception.CardAlreadyExistsException;
 import br.com.challenge.domain.model.entity.Card;
 import br.com.challenge.domain.model.vo.CardNumber;
 
@@ -32,6 +34,9 @@ public class CreateCardService implements CreateCardUseCase {
         
         String hash = hashDataPort.hash(cardNumber.value());
 
+        if(saveCardPort.existsByHashCardNumber(hash))
+            throw new CardAlreadyExistsException();
+
         String encrypted =
                 encryptDataPort.encrypt(cardNumber.value());
 
@@ -42,6 +47,11 @@ public class CreateCardService implements CreateCardUseCase {
                         LocalDateTime.now()
                     );
 
-        return saveCardPort.save(card);
+        try {
+            return saveCardPort.save(card);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new CardAlreadyExistsException();
+        }
     }
 }

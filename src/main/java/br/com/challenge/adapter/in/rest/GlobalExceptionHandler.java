@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.com.challenge.adapter.in.rest.response.ErrorResponse;
+import br.com.challenge.domain.exception.CardAlreadyExistsException;
 import br.com.challenge.domain.exception.CardNotFoundException;
 import br.com.challenge.domain.exception.InvalidCardException;
 
@@ -44,6 +45,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(CardAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleCardAlreadyExistsException(
+        CardAlreadyExistsException exception
+    ) {
+        ErrorResponse errorResponse =
+            new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                List.of(exception.getMessage()),
+                LocalDateTime.now()
+            );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(errorResponse);
     }
 

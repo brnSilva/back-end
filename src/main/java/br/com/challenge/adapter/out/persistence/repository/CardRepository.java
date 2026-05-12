@@ -10,4 +10,6 @@ import br.com.challenge.adapter.out.persistence.entity.CardEntity;
 public interface CardRepository extends JpaRepository<CardEntity, UUID> {
     
     Optional<CardEntity> findByHashCardNumber(String hashCardNumber);
+
+    boolean existsByHashCardNumber(String hashCardNumber);
 }

@@ -38,4 +38,9 @@ public class CardPersistenceAdapter implements SaveCardPort, FindCardPort {
                     CardPersistenceMapper::toDomain
                 );
     }
+
+    @Override
+    public boolean existsByHashCardNumber(String hashCardNumber) {
+        return cardRepository.existsByHashCardNumber(hashCardNumber);
+    }
 }
