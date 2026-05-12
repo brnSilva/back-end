@@ -10,8 +10,10 @@ public final class CardMaskUtil {
             return "INVALID_CARD_NUMBER";
         }
 
+        int maskLength = cardNumber.length() - 8;
+
         return cardNumber.substring(0,4)
-                            + " **** **** "
+                            + "*".repeat(maskLength)
                             + cardNumber.substring(cardNumber.length() - 4);    
     }
 }

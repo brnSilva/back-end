@@ -12,12 +12,12 @@ import br.com.challenge.application.port.out.security.EncryptDataPort;
 import br.com.challenge.config.properties.AesProperties;
 
 @Component
-public class Aes256HashAdapter implements EncryptDataPort {
+public class AesEncryptionAdapter implements EncryptDataPort {
 
     private static final String ALGORITHM = "AES";
     private final AesProperties aesProperties;
 
-    public Aes256HashAdapter(AesProperties aesProperties) {
+    public AesEncryptionAdapter(AesProperties aesProperties) {
         this.aesProperties = aesProperties;
     }
 
