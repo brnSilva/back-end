@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.challenge.application.port.in.FindCardUseCase;
 import br.com.challenge.application.port.out.persistence.FindCardPort;
+import br.com.challenge.application.port.out.security.HashDataPort;
 import br.com.challenge.domain.exception.CardNotFoundException;
 import br.com.challenge.domain.model.entity.Card;
 import br.com.challenge.domain.model.vo.CardNumber;
@@ -15,16 +16,23 @@ public class FindCardService implements FindCardUseCase {
 
     private final FindCardPort findCardPort;
 
-    public FindCardService(FindCardPort findCardPort) {
+    private final HashDataPort hashDataPort;
+
+    public FindCardService(FindCardPort findCardPort, HashDataPort hashDataPort) {
 
         this.findCardPort = findCardPort;
+        this.hashDataPort = hashDataPort;
     }
 
     @Override
     public UUID execute(String cardNumber) {
 
-        Card card = findCardPort.findByCardNumber(new CardNumber(cardNumber))
-                .orElseThrow(CardNotFoundException::new);
+        CardNumber cardNumberValidated = new CardNumber(cardNumber);
+
+        String hash = hashDataPort.hash(cardNumberValidated.value());
+
+        Card card = findCardPort.findByHashCardNumber(hash)
+                        .orElseThrow(CardNotFoundException::new);
 
         return card.id();
     }

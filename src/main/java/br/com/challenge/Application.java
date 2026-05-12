@@ -4,13 +4,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+import br.com.challenge.config.properties.AesProperties;
 import br.com.challenge.config.properties.JwtProperties;
 import br.com.challenge.config.properties.SecurityProperties;
 
 @SpringBootApplication
 @EnableConfigurationProperties({
     SecurityProperties.class,
-    JwtProperties.class
+    JwtProperties.class,
+	AesProperties.class
 })
 public class Application {
 

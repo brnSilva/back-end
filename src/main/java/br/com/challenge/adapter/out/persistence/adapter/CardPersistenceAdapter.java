@@ -10,7 +10,6 @@ import br.com.challenge.adapter.out.persistence.repository.CardRepository;
 import br.com.challenge.application.port.out.persistence.FindCardPort;
 import br.com.challenge.application.port.out.persistence.SaveCardPort;
 import br.com.challenge.domain.model.entity.Card;
-import br.com.challenge.domain.model.vo.CardNumber;
 
 @Component
 public class CardPersistenceAdapter implements SaveCardPort, FindCardPort {
@@ -31,10 +30,10 @@ public class CardPersistenceAdapter implements SaveCardPort, FindCardPort {
     }
 
     @Override
-    public Optional<Card> findByCardNumber(CardNumber cardNumber) {
+    public Optional<Card> findByHashCardNumber(String hashCardNumber) {
         return cardRepository
                 .findByHashCardNumber(
-                    cardNumber.value()
+                    hashCardNumber
                 ).map(
                     CardPersistenceMapper::toDomain
                 );
