@@ -29,7 +29,11 @@ public class ResourceServerConfig {
             )
 
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/h2-console/**").permitAll()
+                    .requestMatchers(
+                        "/h2-console/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
             )
 
