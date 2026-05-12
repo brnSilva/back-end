@@ -36,6 +36,8 @@ jwt:
 logging:
   level:
     org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] %-5level %logger{36} - %msg%n"
 
 aes:
   secret-key: 12345678901234567890123456789012

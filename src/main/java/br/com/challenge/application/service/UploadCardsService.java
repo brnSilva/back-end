@@ -1,11 +1,12 @@
 package br.com.challenge.application.service;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,8 @@ import br.com.challenge.application.port.in.UploadCardsUseCase;
 @Service
 public class UploadCardsService implements UploadCardsUseCase {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadCardsService.class);
+
     private final CreateCardUseCase createCardUseCase;
 
     public UploadCardsService(CreateCardUseCase createCardUseCase) {
@@ -26,6 +29,9 @@ public class UploadCardsService implements UploadCardsUseCase {
 
     @Override
     public UploadCardsResponse execute(MultipartFile file) {
+
+        LOGGER.info("Upload processing started - filename={}", file.getOriginalFilename() );
+        
         int processed = 0;
         int success = 0;
 
@@ -72,6 +78,7 @@ public class UploadCardsService implements UploadCardsUseCase {
 
                     success++;
                 } catch (Exception e) {
+                    LOGGER.warn( "Upload failed - identifier={} reason={}", cardIdentifier, e.getMessage());
                     errorsDetails.add(
                         new UploadErrorResponse(
                                 cardIdentifier,
@@ -83,6 +90,11 @@ public class UploadCardsService implements UploadCardsUseCase {
             throw new IllegalStateException(
                 "Error processing file upload", e );
         }
+
+        LOGGER.info("Upload processed= {}, success= {}, failed= {}",
+                    processed,
+                    success,
+                    errorsDetails.size());
 
         return new UploadCardsResponse(
             processed,

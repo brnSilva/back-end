@@ -2,8 +2,11 @@ package br.com.challenge.application.service;
 
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import br.com.challenge.adapter.in.rest.logging.CardMaskUtil;
 import br.com.challenge.application.port.in.FindCardUseCase;
 import br.com.challenge.application.port.out.persistence.FindCardPort;
 import br.com.challenge.application.port.out.security.HashDataPort;
@@ -13,6 +16,8 @@ import br.com.challenge.domain.model.vo.CardNumber;
 
 @Service
 public class FindCardService implements FindCardUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FindCardService.class);
 
     private final FindCardPort findCardPort;
 
@@ -27,13 +32,22 @@ public class FindCardService implements FindCardUseCase {
     @Override
     public UUID execute(String cardNumber) {
 
+        LOGGER.info("Card lookup requested - card={}", CardMaskUtil.maskCardNumber(cardNumber));
+
         CardNumber cardNumberValidated = new CardNumber(cardNumber);
 
         String hash = hashDataPort.hash(cardNumberValidated.value());
 
         Card card = findCardPort.findByHashCardNumber(hash)
-                        .orElseThrow(CardNotFoundException::new);
+                                    .orElseThrow(() -> {
 
+                                        LOGGER.info("Card not found - card={}", 
+                                                CardMaskUtil.maskCardNumber(cardNumber));
+
+                                        return new CardNotFoundException();
+                                    });
+
+        LOGGER.info("Card lookup successfully - id={}", card.id());
         return card.id();
     }
 }
