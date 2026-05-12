@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.com.challenge.adapter.in.rest.response.ErrorResponse;
+import br.com.challenge.domain.exception.CardNotFoundException;
 import br.com.challenge.domain.exception.InvalidCardException;
 
 @RestControllerAdvice
@@ -27,6 +28,22 @@ public class GlobalExceptionHandler {
         
         return ResponseEntity
                 .badRequest()
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCardNotFoundException(
+        CardNotFoundException exception
+    ) {
+        ErrorResponse errorResponse =
+            new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                List.of(exception.getMessage()),
+                LocalDateTime.now()
+            );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(errorResponse);
     }
 

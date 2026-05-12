@@ -1,15 +1,19 @@
 package br.com.challenge.adapter.out.persistence.adapter;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 import br.com.challenge.adapter.out.persistence.entity.CardEntity;
 import br.com.challenge.adapter.out.persistence.mapper.CardPersistenceMapper;
 import br.com.challenge.adapter.out.persistence.repository.CardRepository;
+import br.com.challenge.application.port.out.persistence.FindCardPort;
 import br.com.challenge.application.port.out.persistence.SaveCardPort;
 import br.com.challenge.domain.model.entity.Card;
+import br.com.challenge.domain.model.vo.CardNumber;
 
 @Component
-public class CardPersistenceAdapter implements SaveCardPort {
+public class CardPersistenceAdapter implements SaveCardPort, FindCardPort {
 
     private final CardRepository cardRepository;
 
@@ -25,5 +29,14 @@ public class CardPersistenceAdapter implements SaveCardPort {
 
         return CardPersistenceMapper.toDomain(savedEntity);
     }
-    
+
+    @Override
+    public Optional<Card> findByCardNumber(CardNumber cardNumber) {
+        return cardRepository
+                .findByHashCardNumber(
+                    cardNumber.value()
+                ).map(
+                    CardPersistenceMapper::toDomain
+                );
+    }
 }
