@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.com.challenge.adapter.in.rest.logging.CardMaskUtil;
 import br.com.challenge.adapter.in.rest.response.UploadCardsResponse;
 import br.com.challenge.adapter.in.rest.response.UploadErrorResponse;
 import br.com.challenge.application.dto.CreateCardCommand;
@@ -31,7 +32,7 @@ public class UploadCardsService implements UploadCardsUseCase {
     public UploadCardsResponse execute(MultipartFile file) {
 
         LOGGER.info("Upload processing started - filename={}", file.getOriginalFilename() );
-        
+
         int processed = 0;
         int success = 0;
 
@@ -78,7 +79,7 @@ public class UploadCardsService implements UploadCardsUseCase {
 
                     success++;
                 } catch (Exception e) {
-                    LOGGER.warn( "Upload failed - identifier={} reason={}", cardIdentifier, e.getMessage());
+                    LOGGER.warn( "Upload failed - identifier={} cardNumber={} reason={}", cardIdentifier, CardMaskUtil.maskCardNumber(cardNumber), e.getMessage());
                     errorsDetails.add(
                         new UploadErrorResponse(
                                 cardIdentifier,

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import br.com.challenge.adapter.in.rest.logging.CardMaskUtil;
 import br.com.challenge.application.dto.CreateCardCommand;
 import br.com.challenge.application.port.in.CreateCardUseCase;
 import br.com.challenge.application.port.out.persistence.SaveCardPort;
@@ -40,7 +39,6 @@ public class CreateCardService implements CreateCardUseCase {
         String hash = hashDataPort.hash(cardNumber.value());
 
         if(saveCardPort.existsByHashCardNumber(hash)){
-            LOGGER.info("Card already exists - card={}", CardMaskUtil.maskCardNumber(cardNumber.value()));
             throw new CardAlreadyExistsException();
         }
 
