@@ -1,5 +1,6 @@
 package br.com.challenge.config;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
@@ -13,16 +14,25 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
+import br.com.challenge.config.properties.JwtProperties;
+import br.com.challenge.config.properties.SecurityProperties;
 
 @Configuration
 public class AuthorizationServerConfig {
+
+    private final SecurityProperties properties;
+    private final JwtProperties jwtProperties;
+
+    public AuthorizationServerConfig(
+        SecurityProperties properties,
+        JwtProperties jwtProperties
+    ) {
+        this.properties = properties;
+        this.jwtProperties = jwtProperties;
+    }
 
     @Bean
     @Order(1)
@@ -55,14 +65,24 @@ public class AuthorizationServerConfig {
 
         RegisteredClient registeredClient =
                 RegisteredClient.withId(UUID.randomUUID().toString())
-                        .clientId("hyperativa-client")
-                        .clientSecret("{noop}123456")
+                        .clientId(properties.getClientId())
+                        .clientSecret(
+                                "{noop}" + properties.getClientSecret()
+                        )
                         .authorizationGrantType(
                                 AuthorizationGrantType.CLIENT_CREDENTIALS
                         )
-                        .scope("read")
-                        .scope("write")
-                        .build();
+                        .scopes(scopes ->
+                                scopes.addAll(properties.getScopes())
+                        )
+                        .tokenSettings(
+                                TokenSettings.builder()
+                                        .accessTokenTimeToLive(
+                                                Duration.ofSeconds(
+                                                        jwtProperties.getExpiration()
+                                                )
+                                        ).build()
+                        ).build();
 
         return new InMemoryRegisteredClientRepository(
                 registeredClient
@@ -70,14 +90,9 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public JWKSource<SecurityContext> jwkSource() {
-        RSAKey rsaKey = JwtConfig.generateRsa();
-        JWKSet jwkSet = new JWKSet(rsaKey);
-        return new ImmutableJWKSet<>(jwkSet);
-    }
-
-    @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
+        return AuthorizationServerSettings.builder()
+                .issuer(jwtProperties.getIssuer())
+                .build();
     }
 }

@@ -19,3 +19,20 @@ spring:
 server:
   servlet:
     context-path: /api/v1
+
+security:
+  oauth2:
+    client-id: hyperativa-client
+    client-secret: 123456
+    scopes:
+      - read
+      - write
+
+jwt:
+  issuer: http://localhost:8080
+  expiration: 300
+  key-id: challenge-key
+
+logging:
+  level:
+    org.springframework.security: DEBUG
