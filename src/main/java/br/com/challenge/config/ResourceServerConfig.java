@@ -41,7 +41,8 @@ public class ResourceServerConfig {
                         "/h2-console/**",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
-                        "/actuator/**"
+                        "/actuator/**",
+                        "/oauth2/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

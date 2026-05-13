@@ -22,7 +22,7 @@ server:
 
 security:
   oauth2:
-    client-id: hyperativa-client
+    client-id: challenge-client
     client-secret: 123456
     scopes:
       - read
@@ -47,3 +47,9 @@ management:
     web:
       exposure:
         include: health,info,metrics
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: challenge-client
+      client-secret: 123456

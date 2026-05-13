@@ -9,12 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import br.com.challenge.adapter.in.rest.documentation.SwaggerCardController;
 import br.com.challenge.adapter.in.rest.request.CreateCardRequest;
+import br.com.challenge.adapter.in.rest.request.UploadCardsRequest;
 import br.com.challenge.adapter.in.rest.response.CreateCardResponse;
 import br.com.challenge.adapter.in.rest.response.FindCardResponse;
 import br.com.challenge.adapter.in.rest.response.UploadCardsResponse;
@@ -69,9 +68,8 @@ public class CardController implements SwaggerCardController {
 
     @PostMapping("/upload")
     public UploadCardsResponse upload(
-                @RequestParam("file")
-                MultipartFile file
+                @RequestBody UploadCardsRequest request
     ) {
-        return uploadCardsUseCase.execute(file);
+        return uploadCardsUseCase.execute(request.file());
     }
 }

@@ -74,16 +74,6 @@ Authorization - Basic Auth:
 |---|---|
 | challenge-client | 123456 |
 
-### eCurl
-
-```text
-postman request POST 'http://localhost:8080/api/v1/oauth2/token' \
-  --header 'Content-Type: application/x-www-form-urlencoded' \
-  --header 'Authorization: Basic aHlwZXJhdGl2YS1jbGllbnQ6MTIzNDU2' \
-  --body '' \
-  --auth-basic-username 'challenge-client' \
-  --auth-basic-password '123456'
-```
 
 ### Example Response
 

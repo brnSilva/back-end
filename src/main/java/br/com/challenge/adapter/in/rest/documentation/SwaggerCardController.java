@@ -2,11 +2,9 @@ package br.com.challenge.adapter.in.rest.documentation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import br.com.challenge.adapter.in.rest.request.CreateCardRequest;
+import br.com.challenge.adapter.in.rest.request.UploadCardsRequest;
 import br.com.challenge.adapter.in.rest.response.CreateCardResponse;
 import br.com.challenge.adapter.in.rest.response.ErrorResponse;
 import br.com.challenge.adapter.in.rest.response.FindCardResponse;
@@ -14,6 +12,7 @@ import br.com.challenge.adapter.in.rest.response.UploadCardsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -59,8 +58,8 @@ public interface SwaggerCardController {
     );
 
     @Operation(
-        summary = "Find card by card number",
-        description = "Retrieves the ID of a card using its card number",
+        summary = "Find card by cardNumber",
+        description = "Retrieves the ID of a card using its cardNumber",
         security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
@@ -96,7 +95,7 @@ public interface SwaggerCardController {
 
     @Operation(
         summary = "Upload multiple cards",
-        description = "Uploads a CSV file containing multiple card numbers for batch processing",
+        description = "Uploads a TXT file containing multiple card numbers for batch processing",
         security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
@@ -122,6 +121,6 @@ public interface SwaggerCardController {
         )
     })
     UploadCardsResponse upload(
-        @RequestParam("file") MultipartFile file
+        @RequestBody UploadCardsRequest request
     );
 }
