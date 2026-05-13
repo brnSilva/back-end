@@ -285,7 +285,7 @@ GET /api/v1/actuator/health
 
 # Scalability Considerations
 
-The upload processing was implemented using streaming (`BufferedReader`) to avoid loading the entire file into memory.
+The upload processing was implemented using a (`BufferedReader`) over the file's input stream to avoid loading the entire file into memory.
 
 The application also includes:
 

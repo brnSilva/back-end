@@ -1,6 +1,7 @@
 package br.com.challenge.adapter.in.rest.security;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,16 +37,30 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             HttpServletResponse response,
             AuthenticationException authException
     ) throws IOException, ServletException {
-        LOGGER.warn( "Unauthorized access attempt - path={}", request.getRequestURI());
+
+        String message = "Unauthorized access";
+
+        if(authException.getMessage() != null
+            && authException.getMessage().toLowerCase().contains("expired")) {
+            message = "Token expired";
+        }
+
+        LOGGER.warn( "Unauthorized access - method={}, path={}, ip={}, error={}",
+                                                request.getMethod(),
+                                                request.getRequestURI(),
+                                                request.getRemoteAddr(),
+                                                authException.getMessage() );
 
         ErrorResponse errorResponse = new ErrorResponse(
                                         HttpStatus.UNAUTHORIZED.value(),
-                                        List.of("Unauthorized access"),
-                                        LocalDateTime.now()
-        );
+                                        List.of(message),
+                                        LocalDateTime.now());
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         
         objectMapper.writeValue(
                         response.getOutputStream(),

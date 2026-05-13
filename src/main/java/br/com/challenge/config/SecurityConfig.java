@@ -13,11 +13,11 @@ import br.com.challenge.adapter.in.rest.security.CustomAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
-public class ResourceServerConfig {
+public class SecurityConfig {
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    public ResourceServerConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+    public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
 
@@ -47,13 +47,11 @@ public class ResourceServerConfig {
                     .anyRequest().authenticated()
             )
 
-            .oauth2ResourceServer(resource ->
-                    resource.jwt(Customizer.withDefaults())
-            )
-            .exceptionHandling(exception ->
-                exception.authenticationEntryPoint(
-                        customAuthenticationEntryPoint
-                )
+            .oauth2ResourceServer(resource -> resource
+                    .jwt(Customizer.withDefaults())
+                    .authenticationEntryPoint(
+                            customAuthenticationEntryPoint
+                    )
             );
 
         http.headers(headers ->
