@@ -40,7 +40,8 @@ public class ResourceServerConfig {
                     .requestMatchers(
                         "/h2-console/**",
                         "/v3/api-docs/**",
-                        "/swagger-ui/**"
+                        "/swagger-ui/**",
+                        "/actuator/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )
