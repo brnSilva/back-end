@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a secure API for card registration and lookup, developed as part of the technical challenge.
+This project is a secure API for card registration and lookup, developed as part of a technical challenge.
 
 The API supports:
 
@@ -50,32 +50,53 @@ src/main/java/br/com/challenge
 
 Sensitive card data is protected using:
 
-SHA-256 Hash - Used for:
+## SHA-256 Hash
+
+Used for:
 - secure lookup
 - uniqueness validation
 
-AES Encryption - Used for:
-- secure storage of card numbers - The API never exposes raw card data.
+## AES Encryption
 
-Authentication
-- The API uses OAuth2 with JWT tokens.
+Used for:
+- secure storage of card numbers
 
-PS.: Secrets are externalized through application.yml for simplicity in the technical challenge.
+The API never exposes raw card data.
 
-## Generate Token
+## Authentication
+
+The API uses OAuth2 with JWT tokens.
+
+---
+
+# Generate Token
 
 ```http
 POST /api/v1/oauth2/token
 ```
 
-Authorization - Basic Auth:
+## Authorization - Basic Auth
 
 | Username | Password |
 |---|---|
 | challenge-client | 123456 |
 
+## Body (x-www-form-urlencoded)
 
-### Example Response
+```text
+grant_type=client_credentials
+```
+
+## Example cURL
+
+```bash
+curl --location 'http://localhost:8080/api/v1/oauth2/token' \
+--header 'Authorization: Basic Y2hhbGxlbmdlLWNsaWVudDoxMjM0NTY=' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=client_credentials'
+```
+
+## Example Response
 
 ```json
 {
@@ -128,20 +149,24 @@ http://localhost:8080/api/v1/h2-console
 ---
 
 # API Endpoints
+
 ## Create Card
 
 ```http
 POST /api/v1/cards
-
 Authorization: Bearer <token>
 ```
+
 ### Request
+
 ```json
 {
   "cardNumber": "4456897999999999"
 }
 ```
+
 ### Response
+
 ```json
 {
   "id": "uuid"
@@ -154,10 +179,11 @@ Authorization: Bearer <token>
 
 ```http
 GET /api/v1/cards/{cardNumber}
-
 Authorization: Bearer <token>
 ```
+
 ### Response
+
 ```json
 {
   "id": "uuid"
@@ -170,11 +196,9 @@ Authorization: Bearer <token>
 
 ```http
 POST /api/v1/cards/upload
-
 Authorization: Bearer <token>
 
 Content-Type: multipart/form-data
-
 Form Field: file
 ```
 
@@ -204,7 +228,7 @@ The API uses structured logging with:
 - request duration
 - masked card numbers
 
-Example:
+## Example
 
 ```text
 [correlation-id] POST /api/v1/cards - status=201 - duration=45ms
@@ -259,9 +283,25 @@ GET /api/v1/actuator/health
 
 ---
 
-# Future Improvements
+# Scalability Considerations
 
-- Persistent database (PostgreSQL)
+The upload processing was implemented using streaming (`BufferedReader`) to avoid loading the entire file into memory.
+
+The application also includes:
+
+- stateless services
+- hash-based lookup
+- database uniqueness constraints
+- partial batch processing
+- isolated error handling
+
+These decisions allow the application to scale for large file processing scenarios.
+
+---
+
+# Possible Future Improvements
+
+- PostgreSQL support
 - Docker support
 - Testcontainers
 - Metrics and tracing
