@@ -3,17 +3,19 @@ package br.com.challenge.adapter.in.rest;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import br.com.challenge.adapter.in.rest.documentation.SwaggerCardController;
 import br.com.challenge.adapter.in.rest.request.CreateCardRequest;
-import br.com.challenge.adapter.in.rest.request.UploadCardsRequest;
 import br.com.challenge.adapter.in.rest.response.CreateCardResponse;
 import br.com.challenge.adapter.in.rest.response.FindCardResponse;
 import br.com.challenge.adapter.in.rest.response.UploadCardsResponse;
@@ -66,10 +68,10 @@ public class CardController implements SwaggerCardController {
         return new FindCardResponse(uuid);
     }
 
-    @PostMapping("/upload")
+    @PostMapping(value= "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UploadCardsResponse upload(
-                @RequestBody UploadCardsRequest request
+                @RequestPart("file") MultipartFile file
     ) {
-        return uploadCardsUseCase.execute(request.file());
+        return uploadCardsUseCase.execute(file);
     }
 }

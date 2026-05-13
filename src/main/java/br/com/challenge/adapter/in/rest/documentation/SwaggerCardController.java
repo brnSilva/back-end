@@ -2,9 +2,10 @@ package br.com.challenge.adapter.in.rest.documentation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import br.com.challenge.adapter.in.rest.request.CreateCardRequest;
-import br.com.challenge.adapter.in.rest.request.UploadCardsRequest;
 import br.com.challenge.adapter.in.rest.response.CreateCardResponse;
 import br.com.challenge.adapter.in.rest.response.ErrorResponse;
 import br.com.challenge.adapter.in.rest.response.FindCardResponse;
@@ -90,7 +91,7 @@ public interface SwaggerCardController {
         )
     })
     FindCardResponse findByCardNumber(
-        @PathVariable String cardNumber
+        @PathVariable @Schema(example = "1234567812345678") String cardNumber
     );
 
     @Operation(
@@ -121,6 +122,6 @@ public interface SwaggerCardController {
         )
     })
     UploadCardsResponse upload(
-        @RequestBody UploadCardsRequest request
+        @RequestPart("file") MultipartFile file
     );
 }
