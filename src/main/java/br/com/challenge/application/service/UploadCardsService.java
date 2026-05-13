@@ -20,6 +20,8 @@ import br.com.challenge.adapter.in.rest.response.UploadTrailerResponse;
 import br.com.challenge.application.dto.CreateCardCommand;
 import br.com.challenge.application.port.in.CreateCardUseCase;
 import br.com.challenge.application.port.in.UploadCardsUseCase;
+import br.com.challenge.application.service.parser.UploadFileParser;
+import br.com.challenge.application.service.validator.UploadConsistencyValidator;
 
 @Service
 public class UploadCardsService implements UploadCardsUseCase {
@@ -28,8 +30,16 @@ public class UploadCardsService implements UploadCardsUseCase {
 
     private final CreateCardUseCase createCardUseCase;
 
-    public UploadCardsService(CreateCardUseCase createCardUseCase) {
+    private final UploadFileParser uploadFileParser;
+
+    private final UploadConsistencyValidator validator;
+
+    public UploadCardsService(CreateCardUseCase createCardUseCase,
+                              UploadFileParser uploadFileParser,
+                              UploadConsistencyValidator validator) {
         this.createCardUseCase = createCardUseCase;
+        this.uploadFileParser = uploadFileParser;
+        this.validator = validator;
     }
 
     @Override
@@ -55,34 +65,34 @@ public class UploadCardsService implements UploadCardsUseCase {
             if(headerLine == null)
                 throw new IllegalStateException("File is empty");
 
-            header = parseHeader(headerLine);
+            header = uploadFileParser.parseHeader(
+                                                headerLine
+                                        );
 
             String line;
             String cardIdentifier = null;
             String cardNumber = null;
-            int lineNumber = 0;
 
             while ((line = reader.readLine()) != null) {
 
-                lineNumber++;
-
                 if(line.startsWith("LOTE")){
-                    trailer = parseTrailer(line);
+                    trailer = uploadFileParser.parseTrailer(line);
                     continue;
                 }
 
-                if(!line.startsWith("C")) {
+                if(!line.startsWith("C"))
                     continue; // Skip invalid lines
-                }
 
                 processed++;
 
                 
                 try {
-                    cardIdentifier = line.substring(0, 7).trim();
+                    cardIdentifier = uploadFileParser
+                                        .extractCardIdentifier(line);
 
-                    cardNumber = line.substring(7).trim();
-                    
+                    cardNumber = uploadFileParser
+                                    .extractCardNumber(line);
+
                     CreateCardCommand command = new CreateCardCommand(cardNumber);
 
                     createCardUseCase.execute(command);
@@ -107,20 +117,9 @@ public class UploadCardsService implements UploadCardsUseCase {
                     success,
                     errorsDetails.size());
 
-        boolean lotConsistent = header != null 
-                                && trailer != null 
-                                && header.lot().equals(
-                                                    trailer.lot()
-                                                );
+        boolean lotConsistent = validator.isLotConsistent(header, trailer);
 
-        boolean quantityConsistent = header != null
-                                        && trailer != null
-                                        && header.expectedRecords()
-                                                    .equals(
-                                                        trailer.expectedRecords()
-                                                    )
-                                        && header.expectedRecords()
-                                                    .equals(processed);
+        boolean quantityConsistent = validator.isQuantityConsistent(header, trailer, processed);
         
         return new UploadCardsResponse(
             header,
@@ -132,33 +131,5 @@ public class UploadCardsService implements UploadCardsUseCase {
             errorsDetails.size(),
             errorsDetails
         );
-    }
-
-    private UploadHeaderResponse parseHeader(String headerLine) {
-        
-        String fileName = headerLine.substring(0, 29).trim();
-        
-        String fileDate = headerLine.substring(29, 37).trim();
-
-        String lot = headerLine.substring(37, 45).trim();
-
-        Integer expectedRecords = Integer.parseInt(
-                                        headerLine.substring(45, 51).trim()
-                                    );
-
-        LocalDate dateFormated = LocalDate.parse(fileDate, DateTimeFormatter.BASIC_ISO_DATE);
-
-        return new UploadHeaderResponse(fileName, dateFormated.toString(), lot, expectedRecords);
-    }
-
-    private UploadTrailerResponse parseTrailer(String trailerLine) {
-        
-        String lot = trailerLine.substring(0, 8).trim();
-
-        Integer expectedRecords = Integer.parseInt(
-                                        trailerLine.substring(8, 14).trim()
-                                    );
-
-        return new UploadTrailerResponse(lot, expectedRecords);
     }
 }
