@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: challenge
+
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    url: jdbc:h2:mem:challenge
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+server:
+  servlet:
+    context-path: /api/v1
+
+security:
+  oauth2:
+    client-id: challenge-client
+    client-secret: 123456
+    scopes:
+      - read
+      - write
+
+jwt:
+  issuer: http://localhost:8080
+  expiration: 300
+  key-id: challenge-key
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] %-5level %logger{36} - %msg%n"
+
+aes:
+  secret-key: 12345678901234567890123456789012
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: challenge-client
+      client-secret: 123456
