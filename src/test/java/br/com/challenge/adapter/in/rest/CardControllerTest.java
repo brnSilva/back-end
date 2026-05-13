@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -82,7 +83,7 @@ class CardControllerTest {
     @WithMockUser
     void shouldUploadCardsFile() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv", "content".getBytes());
-        UploadCardsResponse response = new UploadCardsResponse(1, 1, 0, java.util.List.of());
+        UploadCardsResponse response = new UploadCardsResponse(null, null, true, true, 1, 1, 0, List.of());
 
         when(uploadCardsUseCase.execute(any())).thenReturn(response);
 

@@ -2,6 +2,8 @@ package br.com.challenge.application.service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import br.com.challenge.adapter.in.rest.logging.CardMaskUtil;
 import br.com.challenge.adapter.in.rest.response.UploadCardsResponse;
 import br.com.challenge.adapter.in.rest.response.UploadErrorResponse;
+import br.com.challenge.adapter.in.rest.response.UploadHeaderResponse;
+import br.com.challenge.adapter.in.rest.response.UploadTrailerResponse;
 import br.com.challenge.application.dto.CreateCardCommand;
 import br.com.challenge.application.port.in.CreateCardUseCase;
 import br.com.challenge.application.port.in.UploadCardsUseCase;
@@ -33,6 +37,9 @@ public class UploadCardsService implements UploadCardsUseCase {
 
         LOGGER.info("Upload processing started - filename={}", file.getOriginalFilename() );
 
+        UploadHeaderResponse header = null;
+        UploadTrailerResponse trailer = null;
+
         int processed = 0;
         int success = 0;
 
@@ -43,6 +50,12 @@ public class UploadCardsService implements UploadCardsUseCase {
                                         new InputStreamReader(
                                             file.getInputStream()))
         ) {
+            String headerLine = reader.readLine();
+
+            if(headerLine == null)
+                throw new IllegalStateException("File is empty");
+
+            header = parseHeader(headerLine);
 
             String line;
             String cardIdentifier = null;
@@ -53,12 +66,9 @@ public class UploadCardsService implements UploadCardsUseCase {
 
                 lineNumber++;
 
-                if(lineNumber == 1) {
-                    continue; // Skip header
-                }
-
                 if(line.startsWith("LOTE")){
-                    continue; // Skip trailer
+                    trailer = parseTrailer(line);
+                    continue;
                 }
 
                 if(!line.startsWith("C")) {
@@ -97,11 +107,58 @@ public class UploadCardsService implements UploadCardsUseCase {
                     success,
                     errorsDetails.size());
 
+        boolean lotConsistent = header != null 
+                                && trailer != null 
+                                && header.lot().equals(
+                                                    trailer.lot()
+                                                );
+
+        boolean quantityConsistent = header != null
+                                        && trailer != null
+                                        && header.expectedRecords()
+                                                    .equals(
+                                                        trailer.expectedRecords()
+                                                    )
+                                        && header.expectedRecords()
+                                                    .equals(processed);
+        
         return new UploadCardsResponse(
+            header,
+            trailer,
+            lotConsistent,
+            quantityConsistent,
             processed,
             success,
             errorsDetails.size(),
             errorsDetails
         );
+    }
+
+    private UploadHeaderResponse parseHeader(String headerLine) {
+        
+        String fileName = headerLine.substring(0, 29).trim();
+        
+        String fileDate = headerLine.substring(29, 37).trim();
+
+        String lot = headerLine.substring(37, 45).trim();
+
+        Integer expectedRecords = Integer.parseInt(
+                                        headerLine.substring(45, 51).trim()
+                                    );
+
+        LocalDate dateFormated = LocalDate.parse(fileDate, DateTimeFormatter.BASIC_ISO_DATE);
+
+        return new UploadHeaderResponse(fileName, dateFormated.toString(), lot, expectedRecords);
+    }
+
+    private UploadTrailerResponse parseTrailer(String trailerLine) {
+        
+        String lot = trailerLine.substring(0, 8).trim();
+
+        Integer expectedRecords = Integer.parseInt(
+                                        trailerLine.substring(8, 14).trim()
+                                    );
+
+        return new UploadTrailerResponse(lot, expectedRecords);
     }
 }
